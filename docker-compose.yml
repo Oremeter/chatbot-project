@@ -1,0 +1,33 @@
+services:
+  traefik:
+    image: "traefik:v3.1"
+    command:
+      - "--api.insecure=true"  
+      - "--providers.docker=true"  
+      # - "--entrypoints.web.address=:80"  
+      # - "--entrypoints.websecure.address=:8080" 
+    ports:
+      - "80:80"
+      - "8080:8080" 
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+  
+   
+
+
+
+  chatbot:
+    build: ./chatbot
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      - traefik
+    labels:
+      - "traefik.http.routers.chatbot.rule=Host(`chatbot.localhost`)"
+  
+      # - "traefik.http.routers.chatbot.rule=PathPrefix(`/chatbot`)"
+      # - "traefik.http.routers.chatbot.rule=Path(`/chatbot`)"
+        # - "traefik.http.services.chatbot.loadbalancer.server.port=8505"
+
+    ports:
+      - "8505:8505"
